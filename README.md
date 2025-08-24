@@ -1,212 +1,223 @@
-# 📸 DIA DA FOTO - Sistema de Gestão de Eventos Fotográficos
+# 📸 PhotoApp - Sistema de Gerenciamento de Eventos Fotográficos
 
-## 🚀 **Funcionalidades Implementadas**
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Backend-green)](https://supabase.com/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com/)
 
-### ✅ **Sistema de Autenticação**
-- Login com email/senha
-- Credenciais de teste: `robsonm1974@gmail.com` / `1234`
-- Proteção de rotas para usuários autenticados
-- Contexto de autenticação global
+## 🎯 Sobre o Projeto
 
-### ✅ **Gestão de Eventos**
-- **Dashboard principal** com cards de eventos
-- **Criação e edição** de eventos fotográficos
-- **Informações completas**: título, datas, escola, contato, telefone, comissão, observações
-- **Status dos eventos**: Ativo, Próximo, Concluído
-- **Contadores automáticos** de participantes
+**PhotoApp** é uma aplicação web completa para gerenciamento de eventos fotográficos escolares. Sistema moderno e intuitivo que permite organizadores fotografarem eventos, gerenciar participantes, e facilitar a venda de fotos com QR codes únicos.
 
-### ✅ **Página Dedicada por Evento**
-- **URL única** para cada evento: `/event/[id]`
-- **Informações detalhadas** do evento em cards organizados
-- **Estatísticas financeiras** (comissão total)
-- **Ações rápidas** para gerenciar o evento
-- **Botão "Ver Detalhes"** no dashboard redireciona para a página do evento
+### 🌟 Principais Funcionalidades
 
-### ✅ **Gestão de Participantes**
-- **Adição manual** de participantes
-- **Importação em lote via CSV** com tipo padrão "ALUNO"
-- **Validação automática** de colunas (Nome, Turma/Classe)
-- **QR Code único** gerado automaticamente para cada participante
-- **Lista organizável** por nome, turma ou tipo
-- **Busca e filtros** em tempo real
+- 📊 **Dashboard Avançado** - Métricas visuais e analytics em tempo real
+- 👥 **Gestão de Participantes** - Cadastro, edição e organização de estudantes/funcionários
+- 📷 **Upload de Fotos** - Sistema de upload individual e em lote
+- 🔍 **Busca Avançada** - Filtros por escola, status, data, preço e mais
+- 📱 **QR Codes** - Geração e impressão de QR codes únicos para cada participante
+- 💰 **Sistema de Vendas** - Carrinho de compras e gestão financeira
+- 📋 **Exportação** - Listas de participantes em CSV para Excel
+- 🌙 **Modo Escuro/Claro** - Interface adaptável ao usuário
+- 📱 **PWA** - Instalável como app nativo
 
-### ✅ **Sistema de Fotos Completo**
-- **Upload múltiplo** de imagens para cada participante
-- **Botão "Fotos"** na lista de participantes
-- **Seleção de foto de perfil** preferida
-- **Visualização em grid** com overlay de ações
-- **Indicador visual** da foto principal (estrela amarela)
+## 🚀 Demonstração
 
-### ✅ **Perfil do Participante**
-- **Página dedicada** para cada participante
-- **Informações completas**: nome, turma, tipo, QR Code
-- **Galeria de fotos** com visualização em grid
-- **Definição de foto principal** com clique
-- **Ações rápidas**: editar, adicionar fotos, ver QR Code
+### 🖥️ Desktop
+![Dashboard](https://via.placeholder.com/800x400/3B82F6/FFFFFF?text=Dashboard+PhotoApp)
 
-### ✅ **Interface Responsiva e Moderna**
-- **Design responsivo** para desktop e mobile
-- **Componentes UI** baseados em Radix UI
-- **Ícones Lucide React** para melhor UX
-- **Tema consistente** com Tailwind CSS
-- **Modais e overlays** para ações específicas
+### 📱 Mobile
+![Mobile](https://via.placeholder.com/300x600/10B981/FFFFFF?text=Mobile+PhotoApp)
 
-## 🛠️ **Tecnologias Utilizadas**
+## 🛠️ Tecnologias Utilizadas
 
-- **Frontend**: Next.js 15.5.0 + React 19
-- **Linguagem**: TypeScript
-- **Estilização**: Tailwind CSS 3.4.0
-- **Componentes**: Radix UI + componentes customizados
-- **Gerenciamento de Estado**: React Context API
-- **Ícones**: Lucide React
-- **Geração de QR Code**: react-qr-code
-- **Gerenciamento de Formulários**: React Hook Form
-- **Validação**: Zod
+### Frontend
+- **[Next.js 14](https://nextjs.org/)** - Framework React com App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
+- **[Tailwind CSS](https://tailwindcss.com/)** - Framework CSS utilitário
+- **[Shadcn/UI](https://ui.shadcn.com/)** - Componentes UI modernos
+- **[Radix UI](https://www.radix-ui.com/)** - Primitivas acessíveis
+- **[Lucide React](https://lucide.dev/)** - Ícones elegantes
 
-## 📁 **Estrutura do Projeto**
+### Backend & Database
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service
+- **PostgreSQL** - Banco de dados relacional
+- **Row Level Security** - Segurança nativa do Supabase
 
-```
-src/
-├── app/
-│   ├── auth/
-│   │   ├── login/page.tsx          # Página de login
-│   │   └── register/page.tsx       # Página de registro
-│   ├── dashboard/
-│   │   └── page.tsx                # Dashboard principal
-│   ├── event/
-│   │   └── [id]/page.tsx           # Página dedicada do evento
-│   ├── components/
-│   │   ├── auth/
-│   │   │   └── ProtectedRoute.tsx  # Componente de proteção de rota
-│   │   ├── events/
-│   │   │   ├── EventForm.tsx       # Formulário de evento
-│   │   │   ├── ParticipantForm.tsx # Formulário de participante
-│   │   │   ├── ParticipantsList.tsx # Lista de participantes
-│   │   │   ├── ParticipantProfile.tsx # Perfil do participante
-│   │   │   └── QRCodeViewer.tsx    # Visualizador de QR Code
-│   │   └── ui/                     # Componentes base (Button, Input, Card)
-│   ├── contexts/
-│   │   ├── AuthContext.tsx         # Contexto de autenticação
-│   │   └── EventsContext.tsx       # Contexto de eventos e participantes
-│   ├── globals.css                 # Estilos globais
-│   ├── layout.tsx                  # Layout raiz da aplicação
-│   └── page.tsx                    # Página inicial
+### Ferramentas & Deployment
+- **[Vercel](https://vercel.com/)** - Deploy e hosting
+- **[PNPM](https://pnpm.io/)** - Gerenciador de pacotes
+- **ESLint & Prettier** - Qualidade de código
+
+## 📦 Instalação e Configuração
+
+### Pré-requisitos
+- Node.js 18+ 
+- PNPM (recomendado)
+- Conta no Supabase
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/Robsonm1974/PHOTOAPP-CURSOR.git
+cd PHOTOAPP-CURSOR
 ```
 
-## 🚀 **Como Executar**
-
-### 1. **Instalação de Dependências**
+### 2. Instale as dependências
 ```bash
 pnpm install
 ```
 
-### 2. **Configuração de Ambiente**
+### 3. Configure as variáveis de ambiente
 ```bash
 # Copie o arquivo de exemplo
 cp config.env.example .env.local
 
-# Edite as variáveis de ambiente conforme necessário
+# Edite o .env.local com suas credenciais do Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### 3. **Execução em Desenvolvimento**
+### 4. Configure o banco de dados
+```bash
+# Execute os scripts SQL do Supabase (consulte SUPABASE_SETUP.md)
+```
+
+### 5. Inicie o servidor de desenvolvimento
 ```bash
 pnpm dev
 ```
 
-### 4. **Build de Produção**
+Acesse [http://localhost:3000](http://localhost:3000) para ver a aplicação.
+
+## 🏗️ Scripts Disponíveis
+
 ```bash
-pnpm build
-pnpm start
+# Desenvolvimento
+pnpm dev          # Inicia servidor de desenvolvimento
+pnpm build        # Build de produção
+pnpm start        # Inicia servidor de produção
+pnpm lint         # Executa ESLint
+pnpm type-check   # Verifica tipos TypeScript
 ```
 
-## 📊 **Como Usar**
+## 📁 Estrutura do Projeto
 
-### **1. Login e Acesso**
-- Acesse a aplicação
-- Use as credenciais: `robsonm1974@gmail.com` / `1234`
-- Você será redirecionado para o dashboard
+```
+src/
+├── app/                    # App Router (Next.js 14)
+│   ├── components/         # Componentes reutilizáveis
+│   │   ├── ui/            # Componentes base (Shadcn/UI)
+│   │   ├── auth/          # Componentes de autenticação
+│   │   ├── events/        # Componentes de eventos
+│   │   └── dashboard/     # Componentes do dashboard
+│   ├── contexts/          # Contextos React (State Management)
+│   ├── hooks/             # Hooks customizados
+│   ├── auth/              # Páginas de autenticação
+│   ├── dashboard/         # Dashboard principal
+│   ├── event/             # Páginas de eventos
+│   └── globals.css        # Estilos globais
+├── lib/                   # Utilitários e configurações
+│   ├── supabase.ts        # Cliente Supabase
+│   └── utils.ts           # Funções utilitárias
+└── public/                # Assets estáticos
+    ├── manifest.json      # PWA manifest
+    └── sw.js             # Service Worker
+```
 
-### **2. Criação de Eventos**
-- Clique em "Novo Evento" no dashboard
-- Preencha todas as informações necessárias
-- Salve o evento
+## 🎨 Features em Destaque
 
-### **3. Gerenciamento de Participantes**
-- **Opção A**: Clique em "Ver Detalhes" no card do evento
-- **Opção B**: Clique em "Participantes" no card do evento
-- Adicione participantes manualmente ou via CSV
+### 📊 Dashboard Inteligente
+- Métricas visuais em tempo real
+- Gráficos interativos de performance
+- Cards informativos com animações
 
-### **4. Importação CSV**
-- Use o arquivo `exemplo_participantes.csv` como modelo
-- Formato: `Nome,Turma,Tipo`
-- O tipo padrão será "aluno" para todos
-- Clique em "Upload CSV" na lista de participantes
+### 🔐 Autenticação Robusta
+- Login/Registro com Supabase Auth
+- Proteção de rotas automática
+- Gerenciamento de sessão
 
-### **5. Gestão de Fotos**
-- Clique em "Fotos" para cada participante
-- Selecione uma ou várias imagens
-- No perfil do participante, defina a foto preferida
+### 📱 Responsividade Total
+- Design mobile-first
+- Componentes adaptativos
+- PWA instalável
 
-### **6. Visualização de Perfis**
-- Clique em "Perfil" na lista de participantes
-- Visualize todas as fotos do participante
-- Defina a foto principal clicando na estrela
+### ⚡ Performance Otimizada
+- Lazy loading com `next/dynamic`
+- Memoização com `React.memo`
+- Otimização de imagens automática
 
-## 🔧 **Funcionalidades Técnicas**
+## 🔧 Configuração Avançada
 
-### **Importação CSV**
-- **Detecção automática** de colunas (Nome, Turma/Classe)
-- **Validação de dados** antes da importação
-- **Adição em lote** via contexto React
-- **Atualização automática** dos contadores
+### Supabase Setup
+Consulte o arquivo `SUPABASE_SETUP.md` para configuração completa do banco de dados.
 
-### **Sistema de Fotos**
-- **URLs temporárias** para desenvolvimento
-- **Upload múltiplo** de arquivos
-- **Seleção de foto principal** com persistência
-- **Interface visual** com hover effects
+### PWA Configuration
+O app é configurado como PWA e pode ser instalado:
+- Ícones adaptáveis para diferentes dispositivos
+- Service Worker para funcionamento offline
+- Manifest.json configurado
 
-### **Contadores Automáticos**
-- **Participantes por evento** atualizados em tempo real
-- **Estatísticas financeiras** calculadas automaticamente
-- **Sincronização** entre contexto e interface
+### Variáveis de Ambiente
+```env
+# Obrigatórias
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-## 🎯 **Próximos Passos (Sugestões)**
+# Opcionais
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+SUPABASE_PROJECT_ID=
+```
 
-### **Funcionalidades Futuras**
-- [ ] **Integração com Supabase** para persistência real
-- [ ] **Upload de fotos** para servidor/cloud
-- [ ] **Autenticação Google** OAuth
-- [ ] **Exportação de relatórios** em PDF
-- [ ] **Notificações** por email/SMS
-- [ ] **App mobile** React Native
+## 🧪 Testando a Aplicação
 
-### **Melhorias Técnicas**
-- [ ] **Testes automatizados** com Jest/Testing Library
-- [ ] **PWA** (Progressive Web App)
-- [ ] **Cache offline** com Service Workers
-- [ ] **Otimização de performance** com lazy loading
-- [ ] **Internacionalização** (i18n)
+### Usuário de Teste
+Use as credenciais no arquivo `INSTRUCOES_USUARIO_TESTE.md`:
+- Email: `admin@photoapp.com`
+- Senha: `123456`
 
-## 📝 **Notas de Desenvolvimento**
+### Dados de Exemplo
+O arquivo `exemplo_participantes.csv` contém dados para teste.
 
-### **Estado Atual**
-- ✅ **Funcionalidades básicas** implementadas e funcionando
-- ✅ **Interface responsiva** e moderna
-- ✅ **Sistema de autenticação** mockado
-- ✅ **Gestão completa** de eventos e participantes
-- ✅ **Importação CSV** funcional
-- ✅ **Sistema de fotos** completo
+## 🚀 Deploy
 
-### **Arquitetura**
-- **Context API** para gerenciamento de estado global
-- **Componentes modulares** e reutilizáveis
-- **Separação clara** de responsabilidades
-- **TypeScript** para type safety
-- **Tailwind CSS** para estilização consistente
+### Vercel (Recomendado)
+```bash
+# Conecte com GitHub e faça deploy automático
+vercel --prod
+```
+
+### Outras Plataformas
+- Netlify
+- Railway
+- DigitalOcean
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 👨‍💻 Autor
+
+**Robson Machado**
+- GitHub: [@Robsonm1974](https://github.com/Robsonm1974)
+- Email: robsonm1974@gmail.com
+
+## 🙏 Agradecimentos
+
+- [Shadcn/UI](https://ui.shadcn.com/) pela excelente biblioteca de componentes
+- [Supabase](https://supabase.com/) pelo backend poderoso e simples
+- [Vercel](https://vercel.com/) pela plataforma de deploy
 
 ---
 
-## 🎉 **Status: FUNCIONAL E COMPLETO!**
+⭐ **Se este projeto te ajudou, deixe uma estrela no repositório!**
 
-O sistema está **100% funcional** com todas as funcionalidades solicitadas implementadas e testadas. A aplicação está pronta para uso em desenvolvimento e pode ser facilmente adaptada para produção com a integração de um backend real.
+📧 **Dúvidas?** Abra uma [issue](https://github.com/Robsonm1974/PHOTOAPP-CURSOR/issues)
