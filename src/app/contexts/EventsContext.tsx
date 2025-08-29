@@ -55,17 +55,24 @@ export interface Product {
 export interface School {
   id: string
   name: string
+  address: string
   city: string
   state: string
+  cnpj?: string
+  pixKey?: string
   phone: string
-  director: string
   type: 'publica' | 'privada'
+  education: ('infantil' | 'fundamental' | 'medio')[]
   studentCount: number
-  directorPhoto?: string
-  directorMessage?: string
   observations?: string
-  contractPdf?: string
+  instagram?: string
+  facebook?: string
+  whatsapp?: string
+  director: string
+  directorMessage?: string
+  directorPhoto?: string
   schoolImage?: string
+  featuredImages?: string[]
 }
 
 export interface AppConfig {
@@ -231,28 +238,46 @@ const initialSchools: School[] = [
   {
     id: '1',
     name: 'Escola Primária Sol Nascente',
+    address: 'Rua das Flores, 123 - Centro',
     city: 'São Paulo',
     state: 'SP',
+    cnpj: '12.345.678/0001-90',
+    pixKey: 'escola.sol.nascente@email.com',
     phone: '(11) 99999-9999',
-    director: 'Maria Silva',
     type: 'publica',
+    education: ['infantil', 'fundamental'],
     studentCount: 450,
-    directorMessage: 'Bem-vindos à nossa escola! Nosso compromisso é com a excelência educacional.',
     observations: 'Escola com foco em educação infantil e fundamental I.',
-    schoolImage: '/images/school1.jpg'
+    instagram: '@escolasolnascente',
+    facebook: 'Escola Sol Nascente',
+    whatsapp: '(11) 99999-9999',
+    director: 'Maria Silva',
+    directorMessage: 'Bem-vindos à nossa escola! Nosso compromisso é com a excelência educacional.',
+    directorPhoto: '/images/directors/maria-silva.jpg',
+    schoolImage: '/images/school1.jpg',
+    featuredImages: ['/images/schools/sol-nascente-1.jpg', '/images/schools/sol-nascente-2.jpg']
   },
   {
     id: '2',
     name: 'Colégio Estadual Futuro Brilhante',
+    address: 'Av. Principal, 456 - Jardim Europa',
     city: 'São Paulo',
     state: 'SP',
+    cnpj: '98.765.432/0001-10',
+    pixKey: 'futuro.brilhante@email.com',
     phone: '(11) 88888-8888',
-    director: 'João Santos',
     type: 'publica',
+    education: ['fundamental', 'medio'],
     studentCount: 1200,
-    directorMessage: 'Preparando jovens para um futuro brilhante através da educação de qualidade.',
     observations: 'Colégio com ensino fundamental II e médio completo.',
-    schoolImage: '/images/school2.jpg'
+    instagram: '@colegiofuturobrilhante',
+    facebook: 'Colégio Futuro Brilhante',
+    whatsapp: '(11) 88888-8888',
+    director: 'João Santos',
+    directorMessage: 'Preparando jovens para um futuro brilhante através da educação de qualidade.',
+    directorPhoto: '/images/directors/joao-santos.jpg',
+    schoolImage: '/images/school2.jpg',
+    featuredImages: ['/images/schools/futuro-brilhante-1.jpg', '/images/schools/futuro-brilhante-2.jpg']
   }
 ]
 

@@ -27,8 +27,8 @@ export class ExportUtils {
     const csvData = participants.map(participant => [
       `"${participant.name}"`,
       `"${participant.class}"`,
-      participant.type === 'student' ? 'Aluno' : 
-      participant.type === 'teacher' ? 'Professor' : 'Funcionário',
+      participant.type === 'aluno' ? 'Aluno' : 
+      participant.type === 'professor' ? 'Professor' : 'Funcionário',
       participant.qrCode || participant.id,
       participant.photos?.length || 0,
       new Date().toLocaleDateString('pt-BR'),
@@ -252,8 +252,9 @@ export class ExportUtils {
                     <div class="participant-name">${participant.name}</div>
                     <div class="participant-detail">📚 Turma: ${participant.class}</div>
                     <div class="participant-detail">
-                      👤 ${participant.type === 'student' ? 'Aluno' : 
-                           participant.type === 'teacher' ? 'Professor' : 'Funcionário'}
+                      👤 ${participant.type === 'aluno' ? 'Aluno' :
+                           participant.type === 'professor' ? 'Professor' : 
+                           participant.type === 'funcionario' ? 'Funcionário' : 'Outro'}
                     </div>
                     <div class="participant-detail">📷 Fotos: ${participant.photos?.length || 0}</div>
                     <div class="qr-id">ID: ${participant.id}</div>
