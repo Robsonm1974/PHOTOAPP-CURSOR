@@ -34,6 +34,35 @@ export default function LocalizarParticipantePage() {
     const results = searchParticipants(searchQuery, 'qrcode')
     setSearchResults(results)
     setIsSearching(false)
+
+    // Scroll automático para o participante encontrado após um pequeno delay
+    if (results.length > 0) {
+      setTimeout(() => {
+        // Usar o primeiro participante encontrado para o scroll
+        const firstParticipantElement = document.getElementById(`participant-${results[0].id}`)
+        if (firstParticipantElement) {
+          // Scroll suave para o participante
+          firstParticipantElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          })
+          
+          // Adicionar destaque visual temporário usando a classe CSS
+          firstParticipantElement.classList.add('highlight-pulse')
+          
+          // Adicionar um feedback visual adicional
+          firstParticipantElement.style.border = '2px solid #3b82f6'
+          firstParticipantElement.style.borderRadius = '0.75rem'
+          
+          // Remover a classe e o destaque após a animação
+          setTimeout(() => {
+            firstParticipantElement.classList.remove('highlight-pulse')
+            firstParticipantElement.style.border = ''
+            firstParticipantElement.style.borderRadius = ''
+          }, 1000)
+        }
+      }, 500) // Delay para garantir que o DOM foi completamente atualizado
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -289,6 +318,8 @@ export default function LocalizarParticipantePage() {
               <p className="text-gray-600 dark:text-gray-400">
                 {searchResults.length} participante{searchResults.length > 1 ? 's' : ''} encontrado{searchResults.length > 1 ? 's' : ''}
               </p>
+              
+
             </div>
 
             {searchResults.map((participant) => {
@@ -296,7 +327,11 @@ export default function LocalizarParticipantePage() {
               if (!event) return null
 
               return (
-                <Card key={participant.id} className="border-0 bg-white/80 dark:bg-card/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Card 
+                  key={participant.id} 
+                  className="border-0 bg-white/80 dark:bg-card/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 scroll-highlight" 
+                  id={`participant-${participant.id}`}
+                >
                   <CardContent className="p-8">
                     {/* Participant Header */}
                     <div className="flex flex-col sm:flex-row items-center justify-between mb-8 space-y-4 sm:space-y-0">
