@@ -6,6 +6,7 @@ import { EventsProvider } from './contexts/EventsContext'
 import { ThemeProvider } from './components/ui/theme-provider'
 import { Toaster } from './components/ui/toaster'
 
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {

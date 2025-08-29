@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
+
 interface User {
   id: string
   email: string
@@ -12,7 +13,9 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
+  loginAsTest: () => void // Nova função para login de teste
   logout: () => void
+  forceLogout: () => void
   isAuthenticated: boolean
 }
 
@@ -22,62 +25,100 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Simular verificação de autenticação ao carregar
+  // Verificar sessão local ao carregar
   useEffect(() => {
-    const checkAuth = () => {
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser))
-        } catch (error) {
-          localStorage.removeItem('user')
-        }
+    try {
+      const raw = localStorage.getItem('auth:user')
+      if (raw) {
+        const parsed = JSON.parse(raw) as User
+        setUser(parsed)
+      } else {
+        setUser(null)
       }
+    } catch {
+      setUser(null)
+    } finally {
       setIsLoading(false)
     }
-
-    // Simular um pequeno delay para evitar flash
-    const timer = setTimeout(checkAuth, 100)
-    return () => clearTimeout(timer)
   }, [])
+
+  const persistUser = (u: User | null) => {
+    if (u) localStorage.setItem('auth:user', JSON.stringify(u))
+    else localStorage.removeItem('auth:user')
+  }
+
+  // Nova função para login automático de teste
+  const loginAsTest = () => {
+    const testUser: User = {
+      id: 'test-user',
+      email: 'teste@diadafoto.com',
+      name: 'Usuário Teste'
+    }
+    setUser(testUser)
+    persistUser(testUser)
+    console.log('🧪 Login de teste ativado:', testUser)
+  }
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     
     try {
-      // Simular delay de autenticação
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Simular validação básica
-      if (email === 'robsonm1974@gmail.com' && password === '1234') {
-        const userData: User = {
-          id: '00000000-0000-0000-0000-000000000001',
-          email: 'robsonm1974@gmail.com',
-          name: 'Robson Martins'
-        }
-        
-        setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
-      } else {
-        throw new Error('Credenciais inválidas')
-      }
-    } catch (error) {
-      throw error
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password })
+      })
+      if (!res.ok) throw new Error('Credenciais inválidas')
+      const data = await res.json()
+      const u: User = { id: data.id, email: data.email, name: data.name }
+      setUser(u)
+      persistUser(u)
+    } catch (error: any) {
+      console.error('Erro no login:', error)
+      throw new Error(error.message || 'Credenciais inválidas')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('user')
+  const logout = async () => {
+    try {
+      setUser(null)
+      persistUser(null)
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+      setUser(null)
+      persistUser(null)
+    }
+  }
+
+  const forceLogout = async () => {
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
+      
+      // Reset do estado
+      setUser(null)
+      persistUser(null)
+      
+      console.log('🧹 Logout forçado executado - cache limpo')
+    } catch (error) {
+      console.error('Erro no logout forçado:', error)
+      // Limpar mesmo se der erro
+      localStorage.clear()
+      sessionStorage.clear()
+      setUser(null)
+      persistUser(null)
+    }
   }
 
   const value: AuthContextType = {
     user,
     isLoading,
     login,
+    loginAsTest, // Adicionar nova função
     logout,
+    forceLogout,
     isAuthenticated: !!user
   }
 

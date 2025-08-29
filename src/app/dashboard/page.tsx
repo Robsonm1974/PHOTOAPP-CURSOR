@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Camera, Plus, BarChart3, School, Settings } from 'lucide-react'
@@ -16,6 +16,7 @@ import DashboardMetrics from '@/app/components/dashboard/DashboardMetrics'
 import EventCard from '@/app/components/events/EventCard'
 import AdvancedSearch, { SearchFilters } from '@/app/components/dashboard/AdvancedSearch'
 import AnalyticsCharts from '@/app/components/dashboard/AnalyticsCharts'
+import WelcomeModal from '@/app/components/onboarding/WelcomeModal'
 
 // Lazy load do EventForm
 const EventForm = dynamic(() => import('@/app/components/events/EventForm'), {
@@ -30,6 +31,7 @@ export default function DashboardPage() {
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     search: '',
     status: 'all',
@@ -38,6 +40,20 @@ export default function DashboardPage() {
     school: '',
     contact: ''
   })
+
+  // Verificar se é a primeira vez do usuário
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('photoapp_onboarding_completed')
+    const isFirstTime = !hasCompletedOnboarding && events.length === 0
+    
+    if (isFirstTime && user) {
+      // Pequeno delay para garantir que a página carregou
+      const timer = setTimeout(() => {
+        setShowWelcome(true)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [events, user])
 
   // Memoização da filtragem avançada para melhor performance
   const filteredEvents = useMemo(() => {
@@ -123,16 +139,16 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-background dark:via-background dark:to-background transition-colors duration-200">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 sticky top-0 z-50">
+        <header className="bg-white/80 dark:bg-card/80 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-border sticky top-0 z-50 transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
                 <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg mr-3">
                   <Camera className="h-6 w-6 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                   Dia da Foto
                 </h1>
               </div>
@@ -265,6 +281,13 @@ export default function DashboardPage() {
             />
           </div>
         )}
+
+        {/* Welcome/Onboarding Modal */}
+        <WelcomeModal
+          isOpen={showWelcome}
+          onClose={() => setShowWelcome(false)}
+          userName={user?.name || user?.email?.split('@')[0] || 'Usuário'}
+        />
       </div>
     </ProtectedRoute>
   )

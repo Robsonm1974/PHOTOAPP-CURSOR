@@ -9,6 +9,7 @@ import { LoadingSpinner } from '@/app/components/ui/loading-spinner'
 import { Button } from '@/app/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Badge } from '@/app/components/ui/badge'
+import { ThemeToggle } from '@/app/components/ui/theme-toggle'
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -28,9 +29,9 @@ export default function HomePage() {
     )
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-background dark:via-background dark:to-background transition-colors duration-200">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 sticky top-0 z-50">
+      <header className="bg-white/80 dark:bg-card/80 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-border sticky top-0 z-50 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -42,6 +43,7 @@ export default function HomePage() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Button asChild variant="outline" className="hidden sm:inline-flex">
                 <Link href="/localizar">
                   <Users className="h-4 w-4 mr-2" />
@@ -66,14 +68,14 @@ export default function HomePage() {
             ✨ Sistema de Gestão Fotográfica Profissional
           </Badge>
           
-          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-5xl md:text-6xl lg:text-7xl">
             Administre seus
             <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Eventos Fotográficos
             </span>
           </h2>
           
-          <p className="mt-6 max-w-3xl mx-auto text-lg text-gray-600 sm:text-xl">
+          <p className="mt-6 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400 sm:text-xl">
             Sistema completo para gerenciar eventos escolares, participantes e gerar QR codes únicos para identificação. 
             Simplifique seu workflow e aumente suas vendas.
           </p>

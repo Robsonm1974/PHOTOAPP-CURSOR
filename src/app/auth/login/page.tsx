@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Camera, Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import { Camera, Eye, EyeOff, Mail, Lock, TestTube } from 'lucide-react'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const { login, isLoading, isAuthenticated } = useAuth()
+  const { login, loginAsTest, isLoading, isAuthenticated } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -32,6 +32,11 @@ export default function LoginPage() {
     } catch (err) {
       setError('Credenciais inválidas. Use robsonm1974@gmail.com / 1234')
     }
+  }
+
+  const handleTestLogin = () => {
+    loginAsTest()
+    router.push('/dashboard')
   }
 
   const handleGoogleLogin = async () => {
@@ -61,6 +66,30 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Botão de Login de Teste */}
+            <div className="mb-6">
+              <Button 
+                onClick={handleTestLogin}
+                variant="outline" 
+                className="w-full bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+              >
+                <TestTube className="h-4 w-4 mr-2" />
+                🧪 Entrar como Teste (Sem Senha)
+              </Button>
+              <p className="text-xs text-gray-500 text-center mt-2">
+                Use este botão para testar o app sem precisar de credenciais
+              </p>
+            </div>
+
+            <div className="relative mb-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Ou faça login normal</span>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-gray-700">

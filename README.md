@@ -3,7 +3,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Backend-green)](https://supabase.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-Local_DB-blue)](https://sqlite.org/)
 [![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com/)
 
 ## 🎯 Sobre o Projeto
@@ -41,9 +41,9 @@
 - **[Lucide React](https://lucide.dev/)** - Ícones elegantes
 
 ### Backend & Database
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service
-- **PostgreSQL** - Banco de dados relacional
-- **Row Level Security** - Segurança nativa do Supabase
+- **[SQLite](https://sqlite.org/)** - Banco de dados local para desenvolvimento
+- **[Better-SQLite3](https://github.com/WiseLibs/better-sqlite3)** - Driver SQLite performático
+- **Dados Locais** - Persistência offline para testes e desenvolvimento
 
 ### Ferramentas & Deployment
 - **[Vercel](https://vercel.com/)** - Deploy e hosting
@@ -55,7 +55,6 @@
 ### Pré-requisitos
 - Node.js 18+ 
 - PNPM (recomendado)
-- Conta no Supabase
 
 ### 1. Clone o repositório
 ```bash
@@ -68,22 +67,13 @@ cd PHOTOAPP-CURSOR
 pnpm install
 ```
 
-### 3. Configure as variáveis de ambiente
+### 3. Configure o banco de dados local
 ```bash
-# Copie o arquivo de exemplo
-cp config.env.example .env.local
-
-# Edite o .env.local com suas credenciais do Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# O banco SQLite será criado automaticamente na primeira execução
+# Arquivo criado: ./local-database.db
 ```
 
-### 4. Configure o banco de dados
-```bash
-# Execute os scripts SQL do Supabase (consulte SUPABASE_SETUP.md)
-```
-
-### 5. Inicie o servidor de desenvolvimento
+### 4. Inicie o servidor de desenvolvimento
 ```bash
 pnpm dev
 ```
@@ -118,7 +108,8 @@ src/
 │   ├── event/             # Páginas de eventos
 │   └── globals.css        # Estilos globais
 ├── lib/                   # Utilitários e configurações
-│   ├── supabase.ts        # Cliente Supabase
+│   ├── database.ts        # Cliente SQLite local
+│   ├── supabase.ts        # Cliente de banco unificado
 │   └── utils.ts           # Funções utilitárias
 └── public/                # Assets estáticos
     ├── manifest.json      # PWA manifest
@@ -132,10 +123,10 @@ src/
 - Gráficos interativos de performance
 - Cards informativos com animações
 
-### 🔐 Autenticação Robusta
-- Login/Registro com Supabase Auth
+### 🔐 Autenticação Local
+- Sistema de autenticação simplificado
 - Proteção de rotas automática
-- Gerenciamento de sessão
+- Gerenciamento de sessão local
 
 ### 📱 Responsividade Total
 - Design mobile-first
@@ -149,8 +140,11 @@ src/
 
 ## 🔧 Configuração Avançada
 
-### Supabase Setup
-Consulte o arquivo `SUPABASE_SETUP.md` para configuração completa do banco de dados.
+### Banco de Dados Local
+O sistema usa SQLite local com dados de exemplo pré-carregados:
+- Arquivo: `./local-database.db`
+- Criado automaticamente na primeira execução
+- Estrutura completa com relacionamentos
 
 ### PWA Configuration
 O app é configurado como PWA e pode ser instalado:
@@ -160,24 +154,25 @@ O app é configurado como PWA e pode ser instalado:
 
 ### Variáveis de Ambiente
 ```env
-# Obrigatórias
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-
-# Opcionais
+# Desenvolvimento local
+NODE_ENV=development
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-SUPABASE_PROJECT_ID=
+
+# Banco local (criado automaticamente)
+# Arquivo: ./local-database.db
 ```
 
 ## 🧪 Testando a Aplicação
 
-### Usuário de Teste
-Use as credenciais no arquivo `INSTRUCOES_USUARIO_TESTE.md`:
-- Email: `admin@photoapp.com`
-- Senha: `123456`
-
 ### Dados de Exemplo
-O arquivo `exemplo_participantes.csv` contém dados para teste.
+O sistema cria automaticamente dados de teste:
+- 1 usuário padrão para desenvolvimento
+- 2 eventos de demonstração
+- 6 participantes de exemplo
+- 2 vendas de exemplo
+
+### Arquivo CSV
+O arquivo `exemplo_participantes.csv` contém dados para importação adicional.
 
 ## 🚀 Deploy
 
@@ -213,7 +208,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para de
 ## 🙏 Agradecimentos
 
 - [Shadcn/UI](https://ui.shadcn.com/) pela excelente biblioteca de componentes
-- [Supabase](https://supabase.com/) pelo backend poderoso e simples
+- [Better-SQLite3](https://github.com/WiseLibs/better-sqlite3) pelo driver SQLite performático
 - [Vercel](https://vercel.com/) pela plataforma de deploy
 
 ---

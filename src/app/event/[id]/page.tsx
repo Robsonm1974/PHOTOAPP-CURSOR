@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Calendar, Camera, Users, Settings, Plus, Upload, Search, Edit, QrCode, Download, Printer, ArrowLeft, MapPin, Phone, DollarSign, FileText } from 'lucide-react'
+import { Calendar, Camera, Users, Settings, Plus, Upload, Search, Edit, QrCode, Download, Printer, ArrowLeft, MapPin, Phone, DollarSign, FileText, Trash2 } from 'lucide-react'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -21,7 +21,7 @@ export default function EventPage() {
   const params = useParams()
   const router = useRouter()
   const { user, logout } = useAuth()
-  const { events, participants, addParticipant, updateParticipant, addPhotosToParticipant, photoSales } = useEvents()
+  const { events, participants, addParticipant, updateParticipant, addPhotosToParticipant, photoSales, deleteEvent } = useEvents()
   
   const [event, setEvent] = useState<Event | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -34,6 +34,7 @@ export default function EventPage() {
   const [showBatchUpload, setShowBatchUpload] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     if (params.id && events.length > 0) {
@@ -149,6 +150,13 @@ export default function EventPage() {
     }
   }
 
+  const handleDeleteEvent = () => {
+    if (event) {
+      deleteEvent(event.id)
+      router.push('/dashboard')
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -177,9 +185,9 @@ export default function EventPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-background transition-colors duration-200">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white dark:bg-card shadow-sm border-b dark:border-border transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
@@ -193,10 +201,10 @@ export default function EventPage() {
                   Voltar
                 </Button>
                 <Camera className="h-8 w-8 text-blue-600 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">Dia da Foto</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dia da Foto</h1>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">Olá, {user?.name || user?.email}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Olá, {user?.name || user?.email}</span>
                 <Link href="/configuracoes">
                   <Button variant="outline" size="sm">
                     <Settings className="h-4 w-4 mr-2" />
@@ -369,6 +377,14 @@ export default function EventPage() {
                   <Printer className={`h-4 w-4 mr-2 ${isPrinting ? 'animate-spin' : ''}`} />
                   {isPrinting ? 'Gerando QR Codes...' : 'Imprimir QR Codes'}
                 </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="ml-2"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir Evento
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -444,6 +460,44 @@ export default function EventPage() {
               participants={eventParticipants}
               onClose={() => setShowBatchUpload(false)}
             />
+          </div>
+        )}
+
+        {/* Modal de Confirmação de Exclusão */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-card rounded-lg max-w-md w-full p-6 transition-colors duration-200">
+              <div className="flex items-center mb-4">
+                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20">
+                  <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  Excluir Evento
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  Tem certeza que deseja excluir o evento <strong>"{event.title}"</strong>? 
+                  Esta ação não pode ser desfeita e todos os participantes e dados relacionados serão perdidos.
+                </p>
+                <div className="flex space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="flex-1"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteEvent}
+                    className="flex-1"
+                  >
+                    Sim, Excluir
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

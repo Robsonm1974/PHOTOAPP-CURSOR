@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
 export interface Event {
   id: string
@@ -310,6 +310,20 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [photoSales, setPhotoSales] = useState<PhotoSale[]>(initialPhotoSales)
   const [appConfig, setAppConfig] = useState<AppConfig>(initialAppConfig)
 
+  // Carregar eventos do banco local
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const res = await fetch('/api/events')
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length) setEvents(data)
+        }
+      } catch {}
+    }
+    loadEvents()
+  }, [])
+
   const generateQRCode = (): string => {
     let code: string
     do {
@@ -326,6 +340,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       status: 'upcoming',
     }
     setEvents(prev => [...prev, newEvent])
+    // Persistir
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEvent)
+    }).catch(() => {})
   }
 
   const updateEvent = (id: string, updates: Partial<Event>) => {
@@ -351,6 +371,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         ? { ...event, participantsCount: event.participantsCount + 1 }
         : event
     ))
+    // Persistir
+    fetch('/api/participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newParticipant)
+    }).catch(() => {})
   }
 
   const addParticipantsBatch = (participantsData: Omit<Participant, 'id' | 'qrCode'>[]) => {
@@ -370,6 +396,15 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           : event
       ))
     }
+
+    // Persistir
+    newParticipants.forEach(np => {
+      fetch('/api/participants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(np)
+      }).catch(() => {})
+    })
   }
 
   const updateParticipant = (id: string, updates: Partial<Participant>) => {
