@@ -110,14 +110,24 @@ export default function EventForm({ initialData, onSubmit, onCancel, isLoading =
     // Adicionar a nova escola
     const newSchool = {
       name: newSchoolData.name,
+      address: '',
       city: newSchoolData.city,
       state: newSchoolData.state,
+      cnpj: '',
+      pixKey: '',
       phone: newSchoolData.phone,
-      director: newSchoolData.director,
       type: newSchoolData.type,
+      education: ['fundamental'] as ('infantil' | 'fundamental' | 'medio')[],
       studentCount: newSchoolData.studentCount,
+      observations: '',
+      instagram: '',
+      facebook: '',
+      whatsapp: '',
+      director: newSchoolData.director,
       directorMessage: '',
-      observations: ''
+      directorPhoto: '',
+      schoolImage: '',
+      featuredImages: []
     }
     
     addSchool(newSchool)

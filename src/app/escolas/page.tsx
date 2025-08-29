@@ -52,16 +52,24 @@ export default function EscolasPage() {
     setEditingSchool(null)
     setSchoolForm({
       name: '',
+      address: '',
       city: '',
       state: '',
+      cnpj: '',
+      pixKey: '',
       phone: '',
-      director: '',
       type: 'publica',
+      education: ['fundamental'],
       studentCount: 0,
-      directorMessage: '',
       observations: '',
+      instagram: '',
+      facebook: '',
+      whatsapp: '',
+      director: '',
+      directorMessage: '',
       directorPhoto: '',
-      schoolImage: ''
+      schoolImage: '',
+      featuredImages: []
     })
     setShowSchoolForm(true)
   }
@@ -70,16 +78,24 @@ export default function EscolasPage() {
     setEditingSchool(school)
     setSchoolForm({
       name: school.name,
+      address: school.address || '',
       city: school.city,
       state: school.state,
+      cnpj: school.cnpj || '',
+      pixKey: school.pixKey || '',
       phone: school.phone,
-      director: school.director,
       type: school.type,
+      education: school.education || ['fundamental'],
       studentCount: school.studentCount,
-      directorMessage: school.directorMessage || '',
       observations: school.observations || '',
+      instagram: school.instagram || '',
+      facebook: school.facebook || '',
+      whatsapp: school.whatsapp || '',
+      director: school.director,
+      directorMessage: school.directorMessage || '',
       directorPhoto: school.directorPhoto || '',
-      schoolImage: school.schoolImage || ''
+      schoolImage: school.schoolImage || '',
+      featuredImages: school.featuredImages || []
     })
     setShowSchoolForm(true)
   }
@@ -230,8 +246,27 @@ export default function EscolasPage() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => router.push(`/escola/${school.id}/dashboard`)}
+                          className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
+                          title="Dashboard da Escola"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => router.push(`/escola/${school.id}`)}
+                          className="h-8 w-8 p-0 text-gray-600 hover:text-green-600"
+                          title="Página Pública da Escola"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleEditSchool(school)}
                           className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
+                          title="Editar Escola"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -240,6 +275,7 @@ export default function EscolasPage() {
                           size="sm"
                           onClick={() => handleDeleteSchool(school.id)}
                           className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
+                          title="Excluir Escola"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -248,6 +284,12 @@ export default function EscolasPage() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="space-y-3">
+                      {school.address && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <MapPin className="h-4 w-4" />
+                          <span className="truncate">{school.address}</span>
+                        </div>
+                      )}
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <MapPin className="h-4 w-4" />
                         <span>{school.city}, {school.state}</span>
@@ -260,6 +302,19 @@ export default function EscolasPage() {
                         <User className="h-4 w-4" />
                         <span>{school.director}</span>
                       </div>
+                      {school.education && school.education.length > 0 && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <GraduationCap className="h-4 w-4" />
+                          <div className="flex flex-wrap gap-1">
+                            {school.education.map((level) => (
+                              <Badge key={level} variant="outline" className="text-xs">
+                                {level === 'infantil' ? 'EI' : 
+                                 level === 'fundamental' ? 'EF' : 'EM'}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -323,6 +378,18 @@ export default function EscolasPage() {
                         />
                       </div>
 
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Endereço Completo
+                        </label>
+                        <Input
+                          value={schoolForm.address}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, address: e.target.value }))}
+                          placeholder="Rua, número, bairro"
+                          className="h-11"
+                        />
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -370,6 +437,31 @@ export default function EscolasPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
+                            CNPJ
+                          </label>
+                          <Input
+                            value={schoolForm.cnpj}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, cnpj: e.target.value }))}
+                            placeholder="00.000.000/0000-00"
+                            className="h-11"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Chave PIX
+                          </label>
+                          <Input
+                            value={schoolForm.pixKey}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, pixKey: e.target.value }))}
+                            placeholder="email@escola.com ou telefone"
+                            className="h-11"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
                             Telefone *
                           </label>
                           <Input
@@ -398,6 +490,41 @@ export default function EscolasPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Níveis de Ensino *
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {(['infantil', 'fundamental', 'medio'] as const).map((level) => (
+                            <label key={level} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={schoolForm.education.includes(level)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSchoolForm(prev => ({
+                                      ...prev,
+                                      education: [...prev.education, level]
+                                    }))
+                                  } else {
+                                    setSchoolForm(prev => ({
+                                      ...prev,
+                                      education: prev.education.filter(l => l !== level)
+                                    }))
+                                  }
+                                }}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">
+                                {level === 'infantil' ? 'Educação Infantil' : 
+                                 level === 'fundamental' ? 'Ensino Fundamental' : 
+                                 'Ensino Médio'}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Diretor(a) *
                         </label>
                         <Input
@@ -405,6 +532,51 @@ export default function EscolasPage() {
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, director: e.target.value }))}
                           placeholder="Nome do diretor"
                           required
+                          className="h-11"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Redes Sociais */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <MessageSquare className="h-5 w-5 mr-2 text-purple-600" />
+                      Redes Sociais e Contato
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Instagram
+                        </label>
+                        <Input
+                          value={schoolForm.instagram}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, instagram: e.target.value }))}
+                          placeholder="@escola_insta"
+                          className="h-11"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Facebook
+                        </label>
+                        <Input
+                          value={schoolForm.facebook}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, facebook: e.target.value }))}
+                          placeholder="Nome da página"
+                          className="h-11"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          WhatsApp
+                        </label>
+                        <Input
+                          value={schoolForm.whatsapp}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSchoolForm(prev => ({ ...prev, whatsapp: e.target.value }))}
+                          placeholder="(41) 99999-9999"
                           className="h-11"
                         />
                       </div>

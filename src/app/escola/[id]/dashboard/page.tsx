@@ -2,440 +2,355 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useEvents, School, PhotoSale } from '@/app/contexts/EventsContext'
-import { 
-  BarChart3, 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
-  Calendar, 
-  Download, 
-  ArrowLeft, 
-  Eye,
-  FileText,
-  PieChart
-} from 'lucide-react'
-import { Button } from '@/app/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
-import Link from 'next/link'
+import { School, MapPin, Phone, User, GraduationCap, Users, Calendar, Camera, BarChart3, TrendingUp, Eye, Edit, Plus, ArrowLeft } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { useEvents, School as SchoolType, Event } from '@/app/contexts/EventsContext'
+import ProtectedRoute from '@/app/components/auth/ProtectedRoute'
+import { useAuth } from '@/app/contexts/AuthContext'
 
 export default function EscolaDashboardPage() {
   const params = useParams()
   const router = useRouter()
-  const { schools, photoSales, getPhotoSalesBySchool, calculateSchoolRevenue, participants } = useEvents()
-  const [school, setSchool] = useState<School | null>(null)
-  const [schoolSales, setSchoolSales] = useState<PhotoSale[]>([])
-  const [revenue, setRevenue] = useState({ totalSales: 0, totalCommission: 0, netRevenue: 0 })
+  const { user, logout } = useAuth()
+  const { schools, events } = useEvents()
+  const [school, setSchool] = useState<SchoolType | null>(null)
+  const [schoolEvents, setSchoolEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
-  const [showSalesDetails, setShowSalesDetails] = useState(false)
 
   useEffect(() => {
     if (params.id && schools.length > 0) {
       const foundSchool = schools.find(s => s.id === params.id)
       if (foundSchool) {
         setSchool(foundSchool)
-        const sales = getPhotoSalesBySchool(params.id as string)
-        setSchoolSales(sales)
-        const revenueData = calculateSchoolRevenue(params.id as string)
-        setRevenue(revenueData)
+        // Filtrar eventos desta escola
+        const schoolEvents = events.filter(e => e.schoolId === params.id)
+        setSchoolEvents(schoolEvents)
       }
       setLoading(false)
     }
-  }, [params.id, schools, getPhotoSalesBySchool, calculateSchoolRevenue])
+  }, [params.id, schools, events])
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando dashboard da escola...</p>
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando dashboard da escola...</p>
+          </div>
         </div>
-      </div>
+      </ProtectedRoute>
     )
   }
 
   if (!school) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Escola não encontrada</h1>
-          <p className="text-gray-600 mb-6">A escola solicitada não foi encontrada em nosso sistema.</p>
-          <Link href="/escolas">
-            <Button>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar às Escolas
-            </Button>
-          </Link>
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <School className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Escola não encontrada</h1>
+            <p className="text-gray-600">A escola solicitada não foi encontrada ou não existe.</p>
+          </div>
         </div>
-      </div>
+      </ProtectedRoute>
     )
   }
 
-  const getParticipantInfo = (participantId: string) => {
-    const participant = participants.find(p => p.id === participantId)
-    return participant ? { name: participant.name, class: participant.class } : { name: 'N/A', class: 'N/A' }
-  }
-
-  const exportSalesReport = () => {
-    const reportData = {
-      escola: school.name,
-      periodo: new Date().toLocaleDateString('pt-BR'),
-      vendas: schoolSales.map(sale => {
-        const participantInfo = getParticipantInfo(sale.participantId)
-        return {
-          data: sale.soldAt,
-          aluno: participantInfo.name,
-          turma: participantInfo.class,
-          foto: sale.photoUrl.split('/').pop() || 'N/A',
-          valor: sale.price,
-          comissao: sale.commissionAmount,
-          status: sale.status
-        }
-      }),
-      resumo: {
-        totalVendas: revenue.totalSales,
-        totalComissao: revenue.totalCommission,
-        quantidadeVendas: schoolSales.length
-      }
-    }
-
-    // Gerar PDF manualmente usando HTML
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Relatório de Vendas - ${school.name}</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          .header { text-align: center; margin-bottom: 30px; }
-          .summary { background: #f5f5f5; padding: 15px; margin-bottom: 20px; }
-          .summary h3 { margin-top: 0; }
-          table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; }
-          .total { font-weight: bold; background-color: #e8f4fd; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Relatório de Vendas</h1>
-          <h2>${school.name}</h2>
-          <p>Período: ${new Date().toLocaleDateString('pt-BR')}</p>
-        </div>
-        
-        <div class="summary">
-          <h3>Resumo Financeiro</h3>
-          <p><strong>Total de Vendas:</strong> R$ ${revenue.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-          <p><strong>Total de Comissões:</strong> R$ ${revenue.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-          <p><strong>Quantidade de Vendas:</strong> ${schoolSales.length}</p>
-        </div>
-
-        <h3>Detalhes das Vendas</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Aluno</th>
-              <th>Turma</th>
-              <th>Foto</th>
-              <th>Valor</th>
-              <th>Comissão</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${reportData.vendas.map(venda => `
-              <tr>
-                <td>${new Date(venda.data).toLocaleDateString('pt-BR')}</td>
-                <td>${venda.aluno}</td>
-                <td>${venda.turma}</td>
-                <td>${venda.foto}</td>
-                <td>R$ ${venda.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                <td>R$ ${venda.comissao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                <td>${venda.status === 'paid' ? 'Pago' : venda.status === 'pending' ? 'Pendente' : 'Cancelado'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        
-        <p style="margin-top: 30px; text-align: center; color: #666; font-size: 12px;">
-          Relatório gerado em ${new Date().toLocaleString('pt-BR')}
-        </p>
-      </body>
-      </html>
-    `
-
-    const blob = new Blob([htmlContent], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `relatorio_vendas_${school.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.html`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
+  // Calcular estatísticas
+  const totalEvents = schoolEvents.length
+  const activeEvents = schoolEvents.filter(e => e.status === 'active').length
+  const completedEvents = schoolEvents.filter(e => e.status === 'completed').length
+  const totalParticipants = schoolEvents.reduce((acc, event) => acc + event.participantsCount, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={() => router.push('/escolas')}>
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Voltar
-              </Button>
-              <div className="flex items-center space-x-3">
-                <BarChart3 className="h-8 w-8 text-blue-600" />
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">Dashboard da Escola</h1>
-                  <p className="text-sm text-gray-600">{school.name}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Link href={`/escola/${school.id}`}>
-                <Button variant="outline" size="sm">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Ver Perfil
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.back()}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Voltar
                 </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total de Vendas</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    R$ {revenue.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Comissões</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    R$ {revenue.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Users className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total de Alunos</p>
-                  <p className="text-2xl font-bold text-gray-900">{school.studentCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sales Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Sales */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 mr-2" />
-                Vendas Recentes
-              </CardTitle>
-              <CardDescription>
-                Últimas vendas de fotos desta escola
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {schoolSales.length > 0 ? (
-                <div className="space-y-4">
-                  {schoolSales.slice(0, 5).map((sale) => {
-                    const participantInfo = getParticipantInfo(sale.participantId)
-                    return (
-                      <div key={sale.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <Calendar className="h-5 w-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {participantInfo.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {participantInfo.class} • {new Date(sale.soldAt).toLocaleDateString('pt-BR')}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
-                            R$ {sale.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Comissão: R$ {sale.commissionAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Nenhuma venda registrada ainda</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* School Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Informações da Escola</CardTitle>
-              <CardDescription>Dados básicos da instituição</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Nome</p>
-                  <p className="font-medium text-gray-900">{school.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Cidade/Estado</p>
-                  <p className="font-medium text-gray-900">{school.city}, {school.state}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Tipo</p>
-                  <p className="font-medium text-gray-900 capitalize">
-                    {school.type === 'publica' ? 'Pública' : 'Privada'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Diretor(a)</p>
-                  <p className="font-medium text-gray-900">{school.director}</p>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <School className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-gray-900">Dashboard - {school.name}</h1>
+                    <p className="text-sm text-gray-600">Visão geral e estatísticas da escola</p>
+                  </div>
                 </div>
               </div>
               
-              {school.observations && (
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-gray-600">Observações</p>
-                  <p className="text-gray-900">{school.observations}</p>
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">{user?.name || user?.email}</p>
+                  <p className="text-xs text-gray-500">Fotógrafo</p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                <Button variant="outline" size="sm" onClick={logout}>
+                  Sair
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
 
-        {/* Detailed Sales Section */}
-        <div className="mt-8">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg text-gray-900">Lista Detalhada de Vendas</CardTitle>
-                  <CardDescription>
-                    Visualize todas as vendas com informações completas dos compradores
-                  </CardDescription>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-sm font-medium">Total de Eventos</p>
+                    <p className="text-3xl font-bold">{totalEvents}</p>
+                  </div>
+                  <Calendar className="h-8 w-8 text-blue-200" />
                 </div>
-                <Button onClick={exportSalesReport} className="mt-4 sm:mt-0">
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar PDF
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-100 text-sm font-medium">Eventos Ativos</p>
+                    <p className="text-3xl font-bold">{activeEvents}</p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-green-200" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-100 text-sm font-medium">Eventos Concluídos</p>
+                    <p className="text-3xl font-bold">{completedEvents}</p>
+                  </div>
+                  <BarChart3 className="h-8 w-8 text-purple-200" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-orange-100 text-sm font-medium">Total de Participantes</p>
+                    <p className="text-3xl font-bold">{totalParticipants}</p>
+                  </div>
+                  <Users className="h-8 w-8 text-orange-200" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Informações da Escola */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <School className="h-5 w-5 mr-2 text-blue-600" />
+                    Informações da Escola
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">Localização</p>
+                        <p className="font-medium">{school.city}, {school.state}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Phone className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">Telefone</p>
+                        <p className="font-medium">{school.phone}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <User className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">Diretor(a)</p>
+                        <p className="font-medium">{school.director}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <GraduationCap className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">Tipo</p>
+                        <Badge variant={school.type === 'publica' ? 'default' : 'secondary'}>
+                          {school.type === 'publica' ? 'Pública' : 'Privada'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {school.education && school.education.length > 0 && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm text-gray-500 mb-2">Níveis de Ensino</p>
+                      <div className="flex flex-wrap gap-2">
+                        {school.education.map((level) => (
+                          <Badge key={level} variant="outline">
+                            {level === 'infantil' ? 'Educação Infantil' : 
+                             level === 'fundamental' ? 'Ensino Fundamental' : 
+                             'Ensino Médio'}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="space-y-6">
+              {/* Ações Rápidas */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ações Rápidas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button 
+                    className="w-full" 
+                    onClick={() => router.push(`/event/new?schoolId=${school.id}`)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Evento
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => router.push(`/escola/${school.id}`)}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver Página Pública
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => router.push(`/escolas`)}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Editar Escola
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Estatísticas da Escola */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Estatísticas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total de Alunos</span>
+                    <span className="font-semibold text-blue-600">{school.studentCount}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Tipo</span>
+                    <Badge variant={school.type === 'publica' ? 'default' : 'secondary'}>
+                      {school.type === 'publica' ? 'Pública' : 'Privada'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Estado</span>
+                    <span className="font-semibold text-gray-900">{school.state}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Lista de Eventos */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Eventos da Escola</CardTitle>
+                  <CardDescription>Histórico de eventos fotográficos realizados</CardDescription>
+                </div>
+                <Button onClick={() => router.push(`/event/new?schoolId=${school.id}`)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Evento
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              {schoolSales.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-blue-200">
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Data</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Comprador</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Aluno</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Turma</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Código da Foto</th>
-                        <th className="text-right py-2 px-3 font-medium text-gray-700">Valor</th>
-                        <th className="text-center py-2 px-3 font-medium text-gray-700">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {schoolSales.map((sale) => {
-                        const participantInfo = getParticipantInfo(sale.participantId)
-                        const photoCode = sale.photoUrl.split('/').pop()?.split('.')[0] || 'N/A'
-                        return (
-                          <tr key={sale.id} className="border-b border-gray-100 hover:bg-blue-25">
-                            <td className="py-3 px-3 text-gray-600">
-                              {new Date(sale.soldAt).toLocaleDateString('pt-BR')}
-                            </td>
-                            <td className="py-3 px-3 text-gray-900 font-medium">
-                              Comprador #{sale.id.slice(-4)}
-                            </td>
-                            <td className="py-3 px-3 text-gray-900">
-                              {participantInfo.name}
-                            </td>
-                            <td className="py-3 px-3 text-gray-600">
-                              {participantInfo.class}
-                            </td>
-                            <td className="py-3 px-3 text-gray-600 font-mono text-xs">
-                              {photoCode}
-                            </td>
-                            <td className="py-3 px-3 text-right text-gray-900 font-medium">
-                              R$ {sale.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-3 px-3 text-center">
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                sale.status === 'paid' 
-                                  ? 'bg-green-100 text-green-700' 
-                                  : sale.status === 'pending'
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : 'bg-red-100 text-red-700'
-                              }`}>
-                                {sale.status === 'paid' ? 'Pago' : sale.status === 'pending' ? 'Pendente' : 'Cancelado'}
-                              </span>
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+              {schoolEvents.length > 0 ? (
+                <div className="space-y-4">
+                  {schoolEvents.map((event) => (
+                    <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Camera className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-900">{event.title}</h3>
+                          <p className="text-sm text-gray-600">
+                            {new Date(event.startDate).toLocaleDateString('pt-BR')} • {event.participantsCount} participantes
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={
+                          event.status === 'active' ? 'default' : 
+                          event.status === 'upcoming' ? 'secondary' : 'outline'
+                        }>
+                          {event.status === 'active' ? 'Ativo' : 
+                           event.status === 'upcoming' ? 'Agendado' : 'Concluído'}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => router.push(`/event/${event.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-blue-300 mx-auto mb-4" />
-                  <p className="text-blue-600">Nenhuma venda registrada ainda</p>
-                  <p className="text-sm text-blue-500 mt-1">As vendas aparecerão aqui conforme forem realizadas</p>
+                  <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum evento encontrado</h3>
+                  <p className="text-gray-600 mb-4">
+                    Esta escola ainda não possui eventos fotográficos cadastrados.
+                  </p>
+                  <Button onClick={() => router.push(`/event/new?schoolId=${school.id}`)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar Primeiro Evento
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ProtectedRoute>
   )
 }
